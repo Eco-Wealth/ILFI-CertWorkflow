@@ -10,6 +10,7 @@ contract ILFICertification {
         uint registrationDate;
         CertificationStatus status;
         uint fee;
+        uint lastStatusChangeTimestamp;
     }
 
     mapping(address => Project) public projects;
@@ -34,7 +35,8 @@ contract ILFICertification {
             teamLead: msg.sender,
             registrationDate: block.timestamp,
             status: CertificationStatus.Registered,
-            fee: registrationFee
+            fee: registrationFee,
+            lastStatusChangeTimestamp: block.timestamp
         });
     }
 
@@ -42,13 +44,43 @@ contract ILFICertification {
         require(projects[projectAddress].status == CertificationStatus.Registered, "Project not in Registered state");
         // Additional checks and updates can be performed here.
         projects[projectAddress].status = CertificationStatus.InProgress;
+        projects[projectAddress].lastStatusChangeTimestamp = block.timestamp;
     }
 
-    // More functions for different stages of the certification process (InProgress, Ready, Certified, Appeal) can be added.
+    function advanceToReady(address projectAddress) external onlyOwner projectRegistered(projectAddress) {
+        require(projects[projectAddress].status == CertificationStatus.InProgress, "Project not in InProgress state");
+        // Additional checks and updates can be performed here.
+        projects[projectAddress].status = CertificationStatus.Ready;
+        projects[projectAddress].lastStatusChangeTimestamp = block.timestamp;
+    }
+
+    function certifyProject(address projectAddress) external onlyOwner projectRegistered(projectAddress) {
+        require(projects[projectAddress].status == CertificationStatus.Ready, "Project not in Ready state");
+        // Additional checks and updates can be performed here.
+        projects[projectAddress].status = CertificationStatus.Certified;
+        projects[projectAddress].lastStatusChangeTimestamp = block.timestamp;
+    }
+
+    function initiateAppeal(address projectAddress) external onlyOwner projectRegistered(projectAddress) {
+        require(
+            projects[projectAddress].status == CertificationStatus.Ready || 
+            projects[projectAddress].status == CertificationStatus.Certified, 
+            "Invalid status for appeal"
+        );
+        // Additional checks and updates can be performed here.
+        projects[projectAddress].status = CertificationStatus.Appeal;
+        projects[projectAddress].lastStatusChangeTimestamp = block.timestamp;
+    }
 
     function updateProjectStatus(address projectAddress, CertificationStatus newStatus) external onlyOwner projectRegistered(projectAddress) {
         require(projects[projectAddress].status < newStatus, "Invalid status update");
         projects[projectAddress].status = newStatus;
+        projects[projectAddress].lastStatusChangeTimestamp = block.timestamp;
+    }
+
+    // Function to get the current status of a project
+    function getProjectStatus(address projectAddress) external view projectRegistered(projectAddress) returns (CertificationStatus) {
+        return projects[projectAddress].status;
     }
 }
 
