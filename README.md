@@ -1,4 +1,5 @@
 # ILFI-CertWorkflow
+READ IN CODE EASIER!
 comprehensive program modeling of the ILFI Building Certification Process Workflow
 
 
