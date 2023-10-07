@@ -1,0 +1,16 @@
+{
+  "name": "ilfi-certification",
+  "version": "1.0.0",
+  "description": "ILFI Building Certification Process Application",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js"
+  },
+  "dependencies": {
+    "express": "^5.0.0"
+    // Add other dependencies here
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
